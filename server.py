@@ -12,7 +12,7 @@
 #												#
 #################################################
 
-import os, sys, re, socket, signal
+import os, sys, re, socket, signal, datetime
 
 BAD_REQ = { 'code':'400', 'msg': 'Bad Request' }
 NOT_FOUND = { 'code':'404', 'msg': 'Not Found' }
@@ -45,16 +45,20 @@ def sendResponse(conn, params):
 	responseCodeHeader = 'HTTP/1.1 ' + params['code'] + ' ' + params['msg'] + '\r\n'
 	conn.send(responseCodeHeader.encode())
 
-	if 'text' in params:
-		headers = {
-			'Content-Type': 'text/html',
-			'Content-Length': len(params['text']),
-			'Connection': 'close',
-		}
-		response_headers = ''.join('%s: %s\r\n' % (k, v) for k, v in headers.items())
+	if 'text' not in params:
+		params['text'] = ''
 
-		data = response_headers + '\r\n' + params['text'] + '\r\n' + ''
-		conn.send(data.encode())
+
+	headers = {
+		'Content-Type': 'text/html',
+		'Content-Length': len(params['text']),
+		'Connection': 'close',
+		'Date': str(datetime.datetime.now())
+	}
+	response_headers = ''.join('%s: %s\r\n' % (k, v) for k, v in headers.items())
+
+	data = response_headers + '\r\n' + params['text'] + '\n'
+	conn.send(data.encode())
 
 
 def chceckUrl(url):
@@ -101,7 +105,7 @@ def main():
 	
 	try:
 		port = int(sys.argv[1])
-		if not ((port >= 0) and (port < 2**16-1)):
+		if not ((port >= 2**10) and (port < 2**16-1)):
 			print('Port must have unsigned 16bit integer value\n')
 			sys.exit(1)
 	except ValueError as err:
@@ -167,7 +171,7 @@ def main():
 					else:
 						response = { 'code' : postResponseBody[0]['code'] , 'msg': postResponseBody[0]['msg'] }
 
-				sendResponse(conn, response)
+				sendResponse(conn,response)
 			else:
 				sendResponse(conn,BAD_REQ)
 		else:
