@@ -13,3 +13,11 @@ Pre moje riešenie musí platiť *number ∈ <2^10,2^16>* čím som obmedzil pou
 
 Server čaká na HTTP požiadavky verzie HTTP/1.1 (iná verzia nie je podporovaná) až pokým nie je manuálne prerušený pomocou signálu SIGINT.
 
+Funkcia *parseData* je použitá na kontrolu tela požiadavky po synktaktickej stránke,
+a vracia upravenú štruktúru dát.
+
+Funkcia *sendResponse(conn, params)* použitá na odoslanie odpovedi zo servru.
+Príjíma výstup funkcie parseData, ktoré priamo odosiela v odpovedi. 
+V tejto funkcí sú do odpovedi pridané hlavičky: Typ odpovede s návrátovým kódom, Content-Type, Content-Length, Connection a Date 
+
+Pre kontrolu parametru name v tele požiadavky používam funkcie *chceckUrl* a *chechIpAdress*, ktoré skontrolujú platný formát 

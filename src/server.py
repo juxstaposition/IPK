@@ -43,11 +43,9 @@ def sendResponse(conn, params):
 		params['msg'] = 'Bad Request'
 
 	responseCodeHeader = 'HTTP/1.1 ' + params['code'] + ' ' + params['msg'] + '\r\n'
-	conn.send(responseCodeHeader.encode())
 
 	if 'text' not in params:
 		params['text'] = ''
-
 
 	headers = {
 		'Content-Type': 'text/html',
@@ -55,9 +53,9 @@ def sendResponse(conn, params):
 		'Connection': 'close',
 		'Date': str(datetime.datetime.now())
 	}
-	response_headers = ''.join('%s: %s\r\n' % (k, v) for k, v in headers.items())
+	responseHeaders = ''.join('%s: %s\r\n' % (k, v) for k, v in headers.items())
 
-	data = response_headers + '\r\n' + params['text'] + '\n'
+	data = responseCodeHeader + responseHeaders + '\r\n' + params['text'] + '\r\n'
 	conn.send(data.encode())
 
 
@@ -85,7 +83,7 @@ def parseData(params):
 		except socket.gaierror:
 			return NOT_FOUND
 
-		response = params['name'] + ':' + params['type'] + '=' + remote_ip 
+		response = params['name'] + ':' + params['type'] + '=' + remote_ip + '\n'
 		return {'code':'200', 'msg': 'OK', 'text':response }
 		
 	elif params['type'] == 'PTR' and chechIpAdress(params['name']):
@@ -94,7 +92,7 @@ def parseData(params):
 		except socket.herror:
 			return NOT_FOUND
 
-		response = params['name'] + ':' + params['type'] + '=' + remote_addr 
+		response = params['name'] + ':' + params['type'] + '=' + remote_addr + '\n'
 		return {'code':'200', 'msg': 'OK', 'text':response }
 		
 	else:
@@ -163,7 +161,7 @@ def main():
 						if 'text' in x:
 							validResponse.append(x['text'])
 
-					validResponse = ''.join((line + '\n') for line in validResponse)
+					validResponse = ''.join((line) for line in validResponse)
 					response = {'code':'200', 'msg':'OK','text':validResponse}
 				else:
 					if len(postResponseBody) == 0:
